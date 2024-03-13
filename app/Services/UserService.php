@@ -76,4 +76,57 @@ class UserService
 
         return new UserResource($user);
     }
+
+    /**
+     * Delete user by id
+     * @param int $id
+     *
+     * @return bool
+     */
+    public function delete(int $id): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            $user = $this->user->findOrFail($id);
+            $user->roles()->detach();
+            $user->delete();
+
+            DB::commit();
+
+            return true;
+        } catch (\Exception $e) {
+            Log::error($e);
+            DB::rollBack();
+
+            return false;
+        }
+    }
+
+    /**
+     * Update user by id
+     * @param int $id
+     * @param array $user
+     *
+     * @return bool
+     */
+    public function update(int $id, array $userDetails)
+    {
+        DB::beginTransaction();
+
+        try {
+            $user = $this->user->findOrFail($id);
+            $user->update($userDetails);
+            $user->roles()->sync($userDetails['roles']);
+
+            DB::commit();
+
+            return new UserResource($user);
+        } catch (\Exception $e) {
+            Log::error($e);
+            DB::rollBack();
+
+            return false;
+        }
+    }
 }

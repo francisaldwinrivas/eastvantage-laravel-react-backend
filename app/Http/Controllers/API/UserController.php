@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\CreateUserRequest;
+use App\Http\Requests\API\UpdateUserRequest;
 use App\Services\UserService;
 
 class UserController extends Controller
@@ -55,6 +56,39 @@ class UserController extends Controller
 
         return response()->json([
             'data' => $user
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $deleted = $this->userService->delete($id);
+
+        if(!$deleted)
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete the user.'
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User has been deleted successfully'
+        ]);
+    }
+
+    public function update(int $id, UpdateUserRequest $request)
+    {
+        $user = $this->userService->update($id, $request->only('name', 'email', 'password', 'roles'));
+
+        if(!$user)
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update the user.'
+            ]);
+
+        return response()->json([
+            'success' => false,
+            'user' => $user,
+            'message' => 'User has been updated successfully'
         ]);
     }
 }

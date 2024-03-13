@@ -37,9 +37,9 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
-        $accessToken = $this->loginService->login($request->only('email', 'password'));
+        $data = $this->loginService->login($request->only('email', 'password'));
 
-        if(!$accessToken)
+        if(!$data)
             return response()->json(array(
                 'success' => false,
                 'message' => "Login Failed. Please check your credentials"
@@ -47,7 +47,8 @@ class AuthController extends Controller
 
         return response()->json(array(
             'success' => true,
-            'access_token' => $accessToken,
+            'user' => $data['user'],
+            'access_token' => $data['accessToken'],
             'message' => "User has successfully logged in."
         ));
     }
